@@ -202,6 +202,13 @@ body hr{
     font-weight: bold;
 }
 
+.nav-small {
+    color: #ffffff;
+    font-size: 0.7rem;
+    vertical-align: middle;
+    margin-left: 6px;
+}
+
 .retro-navlinks {
     display: flex;
     gap: 2rem;

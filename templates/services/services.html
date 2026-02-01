@@ -53,6 +53,21 @@
                 <button class="card-btn" onclick="openWebsharkPopup()">Select Service</button>
             </div>
         </div>
+
+        <div class="card-placement">
+            <div class="card-title">
+                <h3>Charts</h3>
+            </div>
+            <div class="card-image">
+                <img src="{% static 'images/charts.jpg' %}" alt="Charts Service">
+            </div>
+            <div class="card-description">
+                <p>Visualize network data with interactive charts and graphs for better analysis.</p>
+            </div>
+            <div class="card-actions">
+                <button class="card-btn" onclick="openChartsPopup()">Select Service</button>
+            </div>
+        </div>
     </div>
 
     <!-- POPUP -->
@@ -99,6 +114,23 @@
                 <button class="popup-btn" onclick="runWebshark()">Run Webshark</button>
                 <button class="popup-btn" onclick="stopWebshark()">Stop</button>
                 <button class="popup-btn hidden" id="openWebsharkUI" onclick="redirectToWebshark()">Open Webshark UI</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup-overlay" id="chartsPopup" style="display:none;">
+        <div class="popup-window" style="max-width: 50%;">
+            <div class="popup-titlebar">
+                <span class="popup-title">Charts</span>
+                <div class="popup-buttons">
+                    <span class="btn pixel close" onclick="closeChartsPopup()"></span>
+                </div>
+            </div>
+            <div class="popup-content">
+                <p>View interactive charts and graphs for network data analysis. Map your network visually for better insights. Find data in tables and charts for comprehensive understanding.</p>
+            </div>
+            <div class="popup-footer">
+                <button class="popup-btn" onclick="runCharts()">Open Charts</button>
             </div>
         </div>
     </div>

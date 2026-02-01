@@ -168,3 +168,16 @@ function redirectToWebshark() {
    const url = `${window.location.protocol}//${window.location.hostname}:8085`;
    window.open(url, "_blank");
 }
+
+// Charts service
+function openChartsPopup() {
+   document.getElementById('chartsPopup').style.display = 'flex';
+}
+
+function closeChartsPopup() {
+   document.getElementById('chartsPopup').style.display = 'none';
+}
+
+function runCharts() {
+   window.open('/charts/', '_blank');
+}
