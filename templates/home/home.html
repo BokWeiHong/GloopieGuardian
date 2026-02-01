@@ -1,0 +1,183 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/retro.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <title>GloopieGuardian</title>
+</head>
+
+<body class="retro">
+    {% include "components/navbar.html" %}
+
+    <div class="window">
+        <div class="window-titlebar">
+            <span class="window-title">GG Chatbox - <b>* 1 new message</b></span>
+            <div class="window-buttons">
+                <span class="btn pixel minimize"></span>
+                <span class="btn pixel square"></span>
+                <span class="btn pixel close"></span>
+            </div>
+        </div>
+        <div class="window-content">
+            <div class="chatbox">
+                <div class="bubble bottom">
+                    <p style="font-weight: bold; font-size: xx-large;">Welcome, {{ user.username }}!</p>
+                    <p class="typing-effect" style="--typing-steps: 32;">I'm GloopieGuardian aka GG. Nice to meet you ~</p>
+                </div>
+                <img src="{% static 'images/blinking_slime.gif' %}" alt="icon" style="height: 150px;">
+            </div> 
+        </div>
+        <div class="window-footer">
+            <input type="text" class="window-input" placeholder="Type here..." />
+            <button class="window-btn">Send</button>
+        </div>
+    </div>
+
+    <div class="about-section">
+        <div class="about-segment">
+            <div class="border">
+                <div class="border-title" style="background-color: #ffdac7; font-size: 24px;">About Me</div>
+                <div class="border-content">
+                    <p>I live inside a Raspberry Pi 5, and my job is to sniff out what’s going on in the wireless world around me. I keep an eye on access points and clients in real time, map their movements, and even use AI to figure out who’s who.</p>
+                    <p>I’m curious, portable, and a little mischievous — I can run penetration tests when you need me to, or just sit back and watch the airwaves for anything suspicious. Think of me as Pwnagotchi’s smarter cousin: same fun vibes, but with a professional toolkit.</p>
+                    <p class="toolong">I also love telling stories: I correlate where devices are, how they move, and when things change. I’ll even nap to save battery when nothing interesting is happening. Feed me data, tweak my curiosity, and I’ll make your wireless world a lot less mysterious.</p>
+                    <br>
+                    <p>(づ˶•༝•˶)づ♡</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="about-segment">
+            <div class="about-image">
+                <img src="{% static 'images/about_me.png' %}" alt="About Me Image">
+            </div>
+        </div>
+    </div>
+
+    <div class="key-features">
+        <h2 class="section-title">Key Features</h2>
+
+        <div class="features-grid">
+            <!-- Card 1 -->
+            <div class="feature-card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <img src="{% static 'images/features/wifi.png' %}" alt="Icon 1" class="feature-icon">
+                        <div class="feature-title">Real-Time Wireless Monitoring</div>
+                    </div>
+                    <div class="card-back">
+                        <div class="feature-desc">“I never sleep — I’m always sniffing the air for new access points and sneaky clients. If it moves, I see it.”</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Card 2 -->
+            <div class="feature-card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <img src="{% static 'images/features/chip.png' %}" alt="Icon 2" class="feature-icon">
+                        <div class="feature-title">AI-Powered Classification</div>
+                    </div>
+                    <div class="card-back">
+                        <div class="feature-desc">“Not all devices are the same — I can tell a smart fridge from a smartphone, and I’ll call out anything acting suspicious.”</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Card 3 -->
+            <div class="feature-card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <img src="{% static 'images/features/brain.png' %}" alt="Icon 3" class="feature-icon">
+                        <div class="feature-title">Spatial Awareness & Mapping</div>
+                    </div>
+                    <div class="card-back">
+                        <div class="feature-desc">“I don’t just listen, I draw maps! Watch as I trace movements, build timelines, and show you where the Wi-Fi magic happens.”</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Card 4 -->
+            <div class="feature-card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <img src="{% static 'images/features/bag.png' %}" alt="Icon 4" class="feature-icon">
+                        <div class="feature-title">Modular Pentest Toolkit</div>
+                    </div>
+                    <div class="card-back">
+                        <div class="feature-desc">“Need to test your defenses? Flip my switch and I’ll grab handshakes, run Evil Twin tricks, or stress-test your setup — ethically, of course.”</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Card 5 -->
+            <div class="feature-card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <img src="{% static 'images/features/connection.png' %}" alt="Icon 5" class="feature-icon">
+                        <div class="feature-title">Portable & Low-Power</div>
+                    </div>
+                    <div class="card-back">
+                        <div class="feature-desc">“I live inside a Pi 5 — tiny, battery-friendly, and always ready to tag along in your backpack.”</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Card 6 -->
+            <div class="feature-card">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <img src="{% static 'images/features/case.png' %}" alt="Icon 6" class="feature-icon">
+                        <div class="feature-title">Secure Logging & Alerts</div>
+                    </div>
+                    <div class="card-back">
+                        <div class="feature-desc">“I keep tidy logs and raise flags when something smells fishy. Think of me as your little slime-shaped security camera for Wi-Fi.”</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <br>
+
+    <div class="window">
+        <div class="window-titlebar">
+            <div class="window-title">Wanna know more about me?</div>
+            <div class="window-buttons">
+            <div class="btn pixel minimize"></div>
+            <div class="btn pixel square"></div>
+            <div class="btn pixel close"></div>
+            </div>
+        </div>
+
+        <div class="window-tabs">
+            <div class="tab active" data-tab="tab1">Fact 1</div>
+            <div class="tab" data-tab="tab2">Fact 2</div>
+            <div class="tab" data-tab="tab3">Fact 3</div>
+            <div class="tab" data-tab="tab4">Fact 4</div>
+        </div>
+
+        <div class="window-content">
+            <div class="tab-panel active" id="tab1">
+                <h3>I Spy Wi-Fi</h3>
+                <p class="typing-effect" style="--typing-steps: 116;">I’m always sniffing the airwaves, watching over access points and clients. If there’s a suspicious signal nearby, I’ll notice it before anyone else.</p>
+            </div>
+            <div class="tab-panel" id="tab2">
+                <h3>Tiny but Mighty</h3>
+                <p class="typing-effect" style="--typing-steps: 124;">I may live inside a small device, but don’t let my size fool you — I pack reconnaissance, AI smarts, and even penetration testing tools all in one squishy package.</p>
+            </div>
+            <div class="tab-panel" id="tab3">
+                <h3>Always Learning</h3>
+                <p class="typing-effect" style="--typing-steps: 132;">The more networks I see, the smarter I get. I use AI-driven classification and anomaly detection to spot patterns — kinda like having street smarts for the wireless world.</p>
+            </div>
+            <div class="tab-panel" id="tab4">
+                <h3>Born for Guardianship</h3>
+                <p class="typing-effect" style="--typing-steps: 138;">I’m not just a lone wolf; I can team up with other GloopieGuardians to share intel and coordinate our efforts. The more of us there are, the safer the wireless world becomes!</p>
+            </div>
+        </div>
+    </div>
+
+    {% include "components/footer.html" %}
+
+    <script src="{% static 'js/retro.js' %}"></script>
+</body>
+
+</html>

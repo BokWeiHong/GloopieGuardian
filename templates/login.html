@@ -1,0 +1,91 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>GloopieGuardian - Menu</title>
+
+    <link rel="stylesheet" href="{% static 'css/retro.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+
+    <style>
+        body {
+            margin: 0;
+            cursor: auto;
+            overflow: hidden;
+        }
+
+        .bg-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -1;
+            pointer-events: none;
+            will-change: transform;
+            background: black;
+        }
+    </style>
+</head>
+
+<body class="login">
+
+    <video autoplay muted loop playsinline class="bg-layer">
+        <source src="{% static 'videos/login.webm' %}" type="video/webm">
+    </video>
+
+    <h1 class="game-title">GloopieGuardian</h1>
+    <ul class="menu-options">
+        <li onclick="showLogin()">Login</li>
+    </ul>
+
+    <div id="loginScreen" class="window" style="color:#000;">
+        <div class="window-titlebar">
+            <span class="window-title">GloopieGuardian - Login</span>
+            <div class="window-buttons">
+                <span class="btn pixel close" onclick="closeLogin()"></span>
+            </div>
+        </div>
+
+        <div class="window-content">
+            <div style="text-align:left; margin-bottom:15px;">
+                <p style="font-weight:bold; font-size:large;">Hello friend ~</p>
+                <p style="font-size:small;">Enter your credentials to access the dashboard!</p>
+            </div>
+
+            <form method="post" class="retro-form">
+                {% csrf_token %}
+
+                <div style="margin-top:10px;">
+                    <label for="id_username">Username:</label>
+                    <input type="text" name="username" id="id_username" class="window-input">
+                </div>
+
+                <div style="margin-top:10px;">
+                    <label for="id_password">Password:</label>
+                    <input type="password" name="password" id="id_password" class="window-input">
+                </div>
+
+                <button type="submit" class="window-btn" style="margin-top:10px;">
+                    Login
+                </button>
+
+                {% if form.errors %}
+                    <p style="color:red; margin-top:10px; font-size:13px;">
+                        ❌ Invalid username or password!
+                    </p>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <footer class="retro-credits">
+        <p>© 2025 GloopieGuardian | Crafted by <b>Bok</b></p>
+        <p>Background inspired by <b>Toby Fox</b> from <b>Undertale</b></p>
+    </footer>
+
+    <script src="{% static 'js/retro.js' %}"></script>
+</body>
+</html>

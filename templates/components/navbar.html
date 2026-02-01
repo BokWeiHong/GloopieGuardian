@@ -1,0 +1,43 @@
+<nav class="retro-navbar retro">
+    <div class="retro-navbar-header">
+        <span class="retro-title">GloopieGuardian</span>
+        <button class="retro-menu-btn" onclick="document.querySelector('.retro-navlinks').classList.toggle('open')">
+            &#9776;
+        </button>
+    </div>
+    <div class="retro-navlinks">
+        <a href="/home/" class="retro-link {% if request.path == '/home/' %}retro-link-active{% endif %}">
+            Home
+        </a>
+
+        <a href="/system/" class="retro-link {% if request.path == '/system/' %}retro-link-active{% endif %}">
+            System
+        </a>
+
+        <a href="/services/" class="retro-link {% if request.path == '/services/' %}retro-link-active{% endif %}">
+            Services
+        </a>
+
+        <a href="/charts/" class="retro-link {% if request.path == '/charts/' %}retro-link-active{% endif %}">
+            Charts
+        </a>
+
+        <a href="/map/" class="retro-link {% if request.path == '/map/' %}retro-link-active{% endif %}">
+            Map
+        </a>
+
+        <a href="/api_tester/" class="retro-link {% if request.path == '/api_tester/' %}retro-link-active{% endif %}">
+            Table
+        </a>
+
+        <form action="{% url 'logout' %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="retro-link" 
+                    style="background:none; border:none; cursor:pointer; font-family:'Press Start 2P';">
+                Logout
+            </button>
+        </form>
+    </div>
+
+</nav>
+

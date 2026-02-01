@@ -1,0 +1,329 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/retro.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
+    <title>GloopieGuardian</title>
+</head>
+
+<body class="retro">
+    {% include "components/navbar.html" %}
+
+    <div class="window">
+        <div class="window-titlebar">
+            <span class="window-title">System Status</span>
+        </div>
+        <div class="window-content">
+            <div id="status-content">
+            <p>Loading system status...</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="system-arrangement">
+        <div class="system-placement col-6 full-on-tablet">
+            <div class="window">
+                <div class="window-titlebar">
+                    <div class="window-title">System & OS</div>
+                </div>
+                <div class="window-content">
+                    <p><strong>System Name:</strong> {{ sys_info.system_name }}</p>
+                    <p><strong>OS Version:</strong> {{ sys_info.os_version }}</p>
+                    <p><strong>Uptime:</strong> {{ sys_info.uptime }}</p>
+                    <p><strong>Processes:</strong> {{ sys_info.process_count }}</p>
+
+                    <hr>
+
+                    <p><strong>RAM:</strong> {{ sys_info.ram_used_gb }}GB / {{ sys_info.ram_total_gb }}GB</p>
+                    <div class="progress-wrapper">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="--ram-usage: {{ sys_info.ram_usage_percent|default:0|floatformat:1 }}%; width: var(--ram-usage);"></div>
+                        </div>
+                        <div class="progress-label">{{ sys_info.ram_usage_percent|default:0|floatformat:1 }}%</div>
+                    </div>
+                    
+                    <p><strong>Swap:</strong> {{ sys_info.swap_used_gb }}GB / {{ sys_info.swap_total_gb }}GB</p>
+                    <div class="progress-wrapper">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="--swap-usage: {{ sys_info.swap_usage_percent|default:0|floatformat:1 }}%; width: var(--swap-usage);"></div>
+                        </div>
+                        <div class="progress-label">{{ sys_info.swap_usage_percent|default:0|floatformat:1 }}%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="system-placement col-6 full-on-tablet">
+            <div class="window">
+                <div class="window-titlebar">
+                    <div class="window-title">CPU</div>
+                </div>
+                <div class="window-content">
+                    <p><strong>Processor:</strong> {{ sys_info.processor }}</p>
+                    <p><strong>Cores:</strong> {{ sys_info.cpu_physical_cores }} physical, {{ sys_info.cpu_logical_cores }} logical</p>
+                    <p><strong>Load Avg:</strong> {{ sys_info.load_average.0|floatformat:2 }}, {{ sys_info.load_average.1|floatformat:2 }}, {{ sys_info.load_average.2|floatformat:2 }}</p>
+                    <p><strong>Usage:</strong></p>
+                    <div class="progress-wrapper">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="--cpu-usage: {{ sys_info.cpu_current_usage_percent|default:0|floatformat:1 }}%; width: var(--cpu-usage);"></div>
+                        </div>
+                        <div class="progress-label">{{ sys_info.cpu_current_usage_percent|default:0|floatformat:1 }}%</div>
+                    </div>
+                    <hr>
+                    <p><strong>Per-Core Usage:</strong></p>
+                    {% for usage in sys_info.cpu_per_core %}
+                        <div class="progress-wrapper">
+                            <p>Core {{ forloop.counter }}:</p>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" 
+                                    style="--core-usage: {{ usage|default:0|floatformat:1 }}%; width: var(--core-usage);">
+                                </div>
+                            </div>
+                            <div class="progress-label">{{ usage|default:0|floatformat:1 }}%</div>
+                        </div>
+                    {% endfor %}      
+                </div>
+            </div>
+        </div>
+
+        <div class="system-placement col-12">
+            <div class="window">
+                <div class="window-titlebar">
+                    <div class="window-title">Disk Partitions</div>
+                </div>
+                <div class="window-content">
+                    <div class="table-container desktop-only">
+                        <table id="systemTable">
+                            <thead>
+                                <tr>
+                                    <th>Device</th>
+                                    <th>Mountpoint</th>
+                                    <th>Type</th>
+                                    <th>Total</th>
+                                    <th>Used</th>
+                                    <th>Usage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for disk in sys_info.disk_partitions %}
+                                <tr>
+                                    <td>{{ disk.device }}</td>
+                                    <td>{{ disk.mountpoint }}</td>
+                                    <td>{{ disk.fstype }}</td>
+                                    <td>{{ disk.total_gb }} GB</td>
+                                    <td>{{ disk.used_gb }} GB</td>
+                                    <td>
+                                        <div class="progress-wrapper">
+                                            <div class="progress-bar-container">
+                                                <div class="progress-bar" style="--disk-usage: {{ disk.percent|default:0|floatformat:1 }}%; width: var(--disk-usage);"></div>
+                                            </div>
+                                            <div class="progress-label">{{ disk.percent|default:0|floatformat:1 }}%</div>
+                                        </div>
+                                        
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mobile-only">
+                        <canvas id="diskUsagePieChart" style="width:100%; height:300px;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="system-placement col-12">
+            <div class="window">
+                <div class="window-titlebar">
+                    <div class="window-title">Network Interfaces</div>
+                </div>
+                <div class="window-content">
+                    <div class="table-container">
+                        <table id="systemTable">
+                            <thead>
+                                <tr>
+                                    <th>Interface</th>
+                                    <th>Address</th>
+                                    <th>Netmask</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for interface, addresses in sys_info.network_interfaces.items %}
+                                    {% for addr in addresses %}
+                                        {% if addr.family == 2 %}
+                                            <tr>
+                                                <td>{{ interface }}</td>
+                                                <td>{{ addr.address }}</td>
+                                                <td>{{ addr.netmask }}</td>
+                                            </tr>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="system-placement col-12">
+            <div class="window">
+                <div class="window-titlebar">
+                    <div class="window-title">Top 10 Processes (by CPU)</div>
+                </div>
+                <div class="window-content">
+                    <table id="systemTable">
+                        <thead>
+                            <tr>
+                            <th>PID</th>
+                            <th>Name</th>
+                            <th>CPU%</th>
+                            <th>Memory%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in sys_info.top_processes %}
+                            <tr>
+                            <td>{{ p.pid }}</td>
+                            <td>{{ p.name }}</td>
+                            <td>{{ p.cpu_percent|floatformat:1 }}</td>
+                            <td>{{ p.memory_percent|floatformat:1 }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include "components/footer.html" %}
+
+    <script src="{% static 'js/chart.umd.min.js' %}"></script>
+    <script src="{% static 'js/chart.umd.min.js.map' %}"></script>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const ctx = document.getElementById('diskUsagePieChart');
+        if (!ctx) return;
+
+        const labels = JSON.parse(`[{% for disk in sys_info.disk_partitions %}
+            "{{ disk.mountpoint|default:'Unknown' }}"{% if not forloop.last %},{% endif %}
+        {% endfor %}]`);
+
+        const data = JSON.parse(`[{% for disk in sys_info.disk_partitions %}
+            {{ disk.used_gb|default:0 }}{% if not forloop.last %},{% endif %}
+        {% endfor %}]`);
+
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    borderColor: '#000',
+                    borderWidth: 2,
+                    backgroundColor: [
+                        '#8aff80', '#ffdd57', '#57a6ff', '#ff8b57', '#d957ff', '#57ffc7'
+                    ]
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: {
+                                family: '"Press Start 2P", system-ui, sans-serif',
+                                size: 8
+                            }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.label}: ${context.raw} GB`;
+                            }
+                        },
+                        backgroundColor: '#222',
+                        borderColor: '#000',
+                        borderWidth: 1,
+                        titleFont: {
+                            family: '"Press Start 2P", system-ui, sans-serif',
+                            size: 10
+                        },
+                        bodyFont: {
+                            family: '"Press Start 2P", system-ui, sans-serif',
+                            size: 8
+                        },
+                        padding: 8
+                    },
+                },
+                layout: { padding: 10 },
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    });
+
+    fetch('status/')
+        .then(res => res.json())
+        .then(data => {
+            const el = document.getElementById('status-content');
+
+            // ===== Temperature handling =====
+            let tempHtml = '<span style="color:#888;">Unavailable</span>';
+
+            if (data.cpu_temperature_c !== null && data.cpu_temperature_c !== undefined) {
+                let color = '#00ff00'; // green
+                let label = 'Normal';
+
+                if (data.cpu_temperature_c >= 75) {
+                    color = '#ff4444'; // red
+                    label = 'HOT';
+                } else if (data.cpu_temperature_c >= 60) {
+                    color = '#ffaa00'; // orange
+                    label = 'Warm';
+                }
+
+                tempHtml = `
+                    <span style="color:${color};">
+                        ${data.cpu_temperature_c} °C (${label})
+                    </span>
+                `;
+            }
+
+            el.innerHTML = `
+                <p><strong>Interfaces:</strong> 
+                    ${data.interfaces.map(i => `${i.name} (${i.type})`).join(', ') || 'None'}
+                </p>
+
+                <p><strong>GPS Module:</strong> 
+                    <span style="color:${data.gps_detected ? '#00ff00' : '#ff4444'};">
+                        ${data.gps_detected ? 'Detected' : 'Not found'}
+                    </span>
+                </p>
+
+                <p><strong>SSH:</strong> 
+                    <span style="color:${data.ssh_status ? '#00ff00' : '#ff4444'};">
+                        ${data.ssh_status ? 'Active' : 'Inactive'}
+                    </span>
+                </p>
+
+                <p><strong>CPU Temperature:</strong> ${tempHtml}</p>
+            `;
+        })
+        .catch(err => {
+            document.getElementById('status-content').innerHTML =
+                `<p style="color:#ff4444;">Error: ${err}</p>`;
+        });
+    </script>
+
+    <script src="{% static 'js/retro.js' %}"></script>
+</body>
+
+</html>
