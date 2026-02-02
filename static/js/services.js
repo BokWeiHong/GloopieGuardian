@@ -19,7 +19,7 @@ let kismetLogInterval = null;
 
 async function openKismetPopup() {
    const overlay = document.getElementById('kismetPopup');
-   const select = document.getElementById('ifaceSelect');
+   const select = document.getElementById('kismetIfaceSelect');
    select.innerHTML = '<option>Loading...</option>';
    overlay.style.display = 'flex';
    try {
@@ -45,7 +45,7 @@ function closeKismetPopup() {
    document.getElementById('kismetPopup').style.display = 'none';
 }
 async function runKismet() {
-   const iface = document.getElementById('ifaceSelect').value;
+   const iface = document.getElementById('kismetIfaceSelect').value;
    if (!iface) return alert("Please select an interface!");
    const res = await fetch(`api/run_kismet/?iface=${iface}`);
    const data = await res.json();
@@ -180,4 +180,17 @@ function closeChartsPopup() {
 
 function runCharts() {
    window.open('/charts/', '_blank');
+}
+
+// TrackerJacker service
+async function openTrackerJackerPopup() {
+   document.getElementById('trackerJackerPopup').style.display = 'flex';
+}
+
+async function runTrackerJacker() {
+   window.open('/tracker/', '_blank');
+}
+
+function closeTrackerJackerPopup() {
+   document.getElementById('trackerJackerPopup').style.display = 'none';
 }

@@ -1,6 +1,18 @@
 <footer class="retro-footer">
-    <div class="footer-content">
-        <span class="footer-title">GloopieGuardian &copy; 2025</span>
-        <span class="footer-time" id="footer-time"></span>
-    </div>
+        <div class="footer-content">
+                <span class="footer-title">GloopieGuardian &copy; {% now "Y" %}</span>
+                <span class="footer-time" id="footer-time"></span>
+        </div>
 </footer>
+<script>
+(function(){
+    function updateFooterTime(){
+        var el = document.getElementById('footer-time');
+        if(!el) return;
+        var d = new Date();
+        el.textContent = d.toLocaleString();
+    }
+    updateFooterTime();
+    setInterval(updateFooterTime, 1000);
+})();
+</script>

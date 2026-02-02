@@ -27,6 +27,7 @@ urlpatterns = [
     path('api_tester/', include('app.api_tester.urls')),
     path('map/', include('app.map.urls')),
     path('services/', include('app.services.urls')),
+    path('tracker/', include('app.tracker.urls')),
 
     # Redirect root URL to dashboard
     path('', RedirectView.as_view(url='/home/', permanent=False)),

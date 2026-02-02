@@ -68,6 +68,22 @@
                 <button class="card-btn" onclick="openChartsPopup()">Select Service</button>
             </div>
         </div>
+
+        
+        <div class="card-placement">
+            <div class="card-title">
+                <h3>TrackerJacker</h3>
+            </div>
+            <div class="card-image">
+                <img src="{% static 'images/trackerjacker.png' %}" alt="TrackerJacker Service">
+            </div>
+            <div class="card-description">
+                <p>Like nmap for mapping wifi networks you're not connected to. Maps and tracks wifi networks and devices through raw 802.11 monitoring.</p>
+            </div>
+            <div class="card-actions">
+                <button class="card-btn" onclick="openTrackerJackerPopup()">Select Service</button>
+            </div>
+        </div>
     </div>
 
     <!-- POPUP -->
@@ -81,7 +97,7 @@
             </div>
             <div class="popup-content">
                 <p>Select your wireless interface to start Kismet:</p>
-                <select id="ifaceSelect" class="window-input"></select>
+                <select id="kismetIfaceSelect" class="window-input"></select>
             </div>
             <div class="card-logs">
                 <div class="log-header">
@@ -107,7 +123,7 @@
                 </div>
             </div>
             <div class="popup-content">
-                <p>Select your wireless interface to start Webshark:</p>
+                <p>Select your PCAP file to start Webshark:</p>
                 <select id="pcapSelect" class="window-input"></select>
             </div>
             <div class="popup-footer">
@@ -131,6 +147,23 @@
             </div>
             <div class="popup-footer">
                 <button class="popup-btn" onclick="runCharts()">Open Charts</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="popup-overlay" id="trackerJackerPopup" style="display:none;">
+        <div class="popup-window">
+            <div class="popup-titlebar">
+                <span class="popup-title">TrackerJacker</span>
+                <div class="popup-buttons">
+                    <span class="btn pixel close" onclick="closeTrackerJackerPopup()"></span>
+                </div>
+            </div>
+            <div class="popup-content">
+                <p>Track and analyze wireless devices in your vicinity for enhanced security and monitoring.</p>
+            </div>
+            <div class="popup-footer">
+                <button class="popup-btn" onclick="runTrackerJacker()">Run TrackerJacker</button>
             </div>
         </div>
     </div>

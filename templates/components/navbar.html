@@ -17,14 +17,14 @@
         <a href="/services/" class="retro-link {% if request.path == '/services/' %}retro-link-active{% endif %}">
             Services
         </a>
+        
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="retro-link" 
+                    style="background:none; border:none; cursor:pointer; font-family:'Press Start 2P';">
+                Logout
+            </button>
+        </form>
     </div>
-
-    <form action="{% url 'logout' %}" method="post" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit" class="retro-link" 
-                style="background:none; border:none; cursor:pointer; font-family:'Press Start 2P';">
-            Logout
-        </button>
-    </form>
 </nav>
 
