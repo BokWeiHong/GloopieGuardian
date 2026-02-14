@@ -7,10 +7,6 @@ from PIL import Image, ImageDraw, ImageFont
 import time
 from datetime import datetime
 
-# --- Configuration ---
-CUSTOM_WIDTH  = 100 
-CUSTOM_HEIGHT = 75
-
 def get_ip_address():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
@@ -38,6 +34,38 @@ def get_system_state():
     time_str = datetime.now().strftime("%H:%M")
     return ip, gps, alfa, time_str
 
+
+def show_sleep_image(epd, pause=2):
+    try:
+        epd.Clear(0xFF)
+
+        canvas = Image.new('1', (epd.height, epd.width), 255)
+        draw = ImageDraw.Draw(canvas)
+
+        try:
+            sleep_img = Image.open('img/sleeping.png').convert('RGBA')
+            sleep_img = sleep_img.resize((150, 80), resample=Image.NEAREST)
+            canvas.paste(sleep_img, (40, 40), mask=sleep_img)
+
+            draw.text((70, 10), "--- SYSTEM OFF ---", font=font, fill=0)
+            draw.text((100, 20), "GG out ~~", font=font, fill=0)
+        except IOError:
+            print("Sleep image 'img/sleeping.png' not found. Showing text only.")
+            draw.text((70, 10), "--- SYSTEM OFF ---", font=font, fill=0)
+            draw.text((100, 25), "GG out ~~", font=font, fill=0)
+
+        epd.display(epd.getbuffer(canvas.rotate(90, expand=True)))
+        time.sleep(pause)
+        print("Sleep image displayed (left visible).")
+
+    except Exception as e:
+        print(f"Error showing sleep image: {e}")
+        try:
+            epd.Clear(0xFF)
+        except Exception:
+            pass
+
+
 try:
     epd = epd2in13_V4.EPD()
     
@@ -49,7 +77,7 @@ try:
 
     try:
         img_raw = Image.open('img/gg.png').convert('RGBA')
-        img_raw = img_raw.resize((CUSTOM_WIDTH, CUSTOM_HEIGHT), resample=Image.NEAREST)
+        img_raw = img_raw.resize((100, 75), resample=Image.NEAREST)
     except IOError:
         print("Image 'img/gg.png' not found. Skipping image.")
         img_raw = None
@@ -105,9 +133,12 @@ try:
         time.sleep(1)
 
 except KeyboardInterrupt:    
-    print("\nExiting and clearing screen...")
-    epd.init()
-    epd.Clear(0xFF) 
-    epd.sleep()
-    epd2in13_V4.EPD().module_exit()
-    sys.exit()
+    print("\nExiting and showing sleeping image...")
+    try:
+        show_sleep_image(epd)
+    except Exception as e:
+        print(f"Error during exit: {e}")
+
+    # Leave the image visible; exit without sleeping/module_exit
+    print("Exiting now.")
+    os._exit(0)
