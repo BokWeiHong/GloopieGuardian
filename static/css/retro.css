@@ -721,6 +721,7 @@ body hr{
     background: none;
     border: none;
     box-shadow: none;
+    perspective: 1000px;
 }
 
 .card-inner {
@@ -758,6 +759,7 @@ body hr{
 
 .card-front {
     z-index: 2;
+    transform: rotateY(0deg);
 }
 
 .card-front img {
@@ -770,6 +772,16 @@ body hr{
     transform: rotateY(180deg);
     z-index: 1;
     background: #d0d4e0;
+}
+
+/* When flipping, ensure the back face appears above the front face */
+.feature-card:hover .card-front,
+.feature-card:focus .card-front {
+    z-index: 1;
+}
+.feature-card:hover .card-back,
+.feature-card:focus .card-back {
+    z-index: 2;
 }
 
 .feature-title {
