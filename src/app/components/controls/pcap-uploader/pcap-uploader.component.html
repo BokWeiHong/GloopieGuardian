@@ -1,0 +1,21 @@
+<div class="lds-container onlyLoader"
+    *ngIf="inProgress && parsingProgress === 0">
+    <h3 style="margin: 0">
+        <div class="lds-ring">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </h3>
+</div>
+<div *ngIf="inProgress && parsingProgress > 0" class="progress-upload">
+    <h3 style="margin: 0">Processing file: {{ filename }}</h3>
+    <p>Parsing progress: {{ parsingProgress }}%</p>
+    <div class="progress-bar-container">
+        <div class="progress-bar" [style.width.%]="parsingProgress"></div>
+    </div>
+</div>
+<div *ngIf="!inProgress && filename">
+    <p>Processing complete: <strong>{{ filename }}</strong></p>
+</div>
