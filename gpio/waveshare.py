@@ -34,7 +34,6 @@ def get_system_state():
     time_str = datetime.now().strftime("%H:%M")
     return ip, gps, alfa, time_str
 
-
 def show_sleep_image(epd, pause=2):
     try:
         epd.Clear(0xFF)
@@ -43,14 +42,14 @@ def show_sleep_image(epd, pause=2):
         draw = ImageDraw.Draw(canvas)
 
         try:
-            sleep_img = Image.open('img/sleeping.png').convert('RGBA')
+            sleep_img = Image.open('/home/pi/GloopieGuardian/gpio/img/sleeping.png').convert('RGBA')
             sleep_img = sleep_img.resize((150, 80), resample=Image.NEAREST)
             canvas.paste(sleep_img, (40, 40), mask=sleep_img)
 
             draw.text((70, 10), "--- SYSTEM OFF ---", font=font, fill=0)
             draw.text((100, 20), "GG out ~~", font=font, fill=0)
         except IOError:
-            print("Sleep image 'img/sleeping.png' not found. Showing text only.")
+            print("Sleep image '/home/pi/GloopieGuardian/gpio/img/sleeping.png' not found. Showing text only.")
             draw.text((70, 10), "--- SYSTEM OFF ---", font=font, fill=0)
             draw.text((100, 25), "GG out ~~", font=font, fill=0)
 
@@ -58,13 +57,14 @@ def show_sleep_image(epd, pause=2):
         time.sleep(pause)
         print("Sleep image displayed (left visible).")
 
+        epd.sleep()
+
     except Exception as e:
         print(f"Error showing sleep image: {e}")
         try:
             epd.Clear(0xFF)
         except Exception:
             pass
-
 
 try:
     epd = epd2in13_V4.EPD()
@@ -76,23 +76,36 @@ try:
         font = ImageFont.load_default()
 
     try:
-        img_raw = Image.open('img/gg.png').convert('RGBA')
-        img_raw = img_raw.resize((100, 75), resample=Image.NEAREST)
+        img_gg = Image.open('/home/pi/GloopieGuardian/gpio/img/gg.png').convert('RGBA')
+        img_gg = img_gg.resize((100, 75), resample=Image.NEAREST)
     except IOError:
-        print("Image 'img/gg.png' not found. Skipping image.")
-        img_raw = None
+        print("Image '/home/pi/GloopieGuardian/gpio/img/gg.png' not found. Skipping image.")
+        img_gg = None
+
+    try:
+        img_napping = Image.open('/home/pi/GloopieGuardian/gpio/img/napping.png').convert('RGBA')
+        img_napping = img_napping.resize((100, 75), resample=Image.NEAREST)
+    except IOError:
+        print("Image '/home/pi/GloopieGuardian/gpio/img/napping.png' not found. Skipping image.")
+        img_napping = None
+    
+    try:
+        img_happy = Image.open('/home/pi/GloopieGuardian/gpio/img/happy.png').convert('RGBA')
+        img_happy = img_happy.resize((100, 75), resample=Image.NEAREST)
+    except IOError:
+        print("Image '/home/pi/GloopieGuardian/gpio/img/happy.png' not found. Skipping image.")
+        img_happy = None
 
     print("Initializing screen...")
     epd.init()
     epd.Clear(0xFF)
 
+    # 1. SETUP CLEAN BASE CANVAS (Only permanent lines and labels)
     base_canvas = Image.new('1', (epd.height, epd.width), 255)
     draw_base = ImageDraw.Draw(base_canvas)
 
-    if img_raw:
-        base_canvas.paste(img_raw, (5, 25), mask=img_raw)
-    
-    draw_base.text((125, 25), "Hello, \nGloopie here!", font=font, fill=0)
+    draw_base.text((5, 5), f"IP:", font=font, fill=0)
+    draw_base.text((125, 5), f"Time:", font=font, fill=0)
     draw_base.text((5, 115), "GPS:", font=font, fill=0)
     draw_base.text((125, 115), "Alfa:", font=font, fill=0)
     draw_base.line((0, 15, epd.height, 15), fill=0, width=1)
@@ -101,20 +114,49 @@ try:
     epd.displayPartBaseImage(epd.getbuffer(base_canvas.rotate(90, expand=True)))
 
     print("System Monitor Running... (Partial Refresh Active)")
+    
     last_state = None 
+    start_time = time.time()
+    is_bored = False
+    is_happy = False
 
+    # 2. MAIN LOOP
     while True:
+        elapsed_time = time.time() - start_time
+
         current_state = get_system_state()
 
-        if current_state != last_state:
+        should_be_bored = elapsed_time > 10
+        should_be_happy = elapsed_time > 20
+
+        if elapsed_time > 30:
+            start_time = time.time()
+
+        # Trigger update if the system state changed OR if Gloopie's mood just changed
+        if (current_state != last_state) or (should_be_bored != is_bored) or (should_be_happy != is_happy):
             ip, gps_ok, alfa_ok, time_str = current_state
 
             dynamic_canvas = base_canvas.copy()
             draw_dynamic = ImageDraw.Draw(dynamic_canvas)
 
-            draw_dynamic.text((5, 5), f"IP:{ip}", font=font, fill=0)
-            draw_dynamic.text((125, 5), f"Time:{time_str}", font=font, fill=0)
+            draw_dynamic.text((25, 5), f"{ip}", font=font, fill=0)
+            draw_dynamic.text((155, 5), f"{time_str}", font=font, fill=0)
 
+            # Handle Gloopie's mood (Images and Text)
+            if should_be_bored and not should_be_happy:
+                if img_napping:
+                    dynamic_canvas.paste(img_napping, (5, 25), mask=img_napping)
+                draw_dynamic.text((125, 25), "Gloopie is \nfeeling bored", font=font, fill=0)
+            elif should_be_happy:
+                if img_happy:
+                    dynamic_canvas.paste(img_happy, (5, 25), mask=img_happy)
+                draw_dynamic.text((125, 25), "Gloopie is \nfeeling happy", font=font, fill=0)
+            else:    
+                if img_gg:
+                    dynamic_canvas.paste(img_gg, (5, 25), mask=img_gg)
+                draw_dynamic.text((125, 25), "Hello, \nGloopie here!", font=font, fill=0)
+
+            # Handle USB Status
             if gps_ok:
                 draw_dynamic.text((35, 115), "[OK]", font=font, fill=0)
             else:
@@ -125,20 +167,24 @@ try:
             else:
                 draw_dynamic.text((160, 115), "!ERR!", font=font, fill=0)
 
+            # Perform the partial refresh
             epd.displayPartial(epd.getbuffer(dynamic_canvas.rotate(90, expand=True)))
             
+            # Save states to prevent unnecessary updates on the next loop
             last_state = current_state
-            print(f"Screen updated at {time_str}")
-
+            is_bored = should_be_bored
+            is_happy = should_be_happy
         time.sleep(1)
 
 except KeyboardInterrupt:    
-    print("\nExiting and showing sleeping image...")
+    print("\nInterrupted by user.")
+
+finally:
+    print("Showing sleeping image...")
     try:
         show_sleep_image(epd)
     except Exception as e:
         print(f"Error during exit: {e}")
 
-    # Leave the image visible; exit without sleeping/module_exit
     print("Exiting now.")
     os._exit(0)

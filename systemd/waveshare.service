@@ -1,0 +1,18 @@
+[Unit]
+Description=Waveshare display service for GloopieGuardian
+After=multi-user.target
+
+[Service]
+User=pi
+Group=www-data
+WorkingDirectory=/home/pi/GloopieGuardian
+
+Environment="PATH=/home/pi/GloopieGuardian/venv/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+Environment=PYTHONUNBUFFERED=1
+
+ExecStart=/bin/bash -lc 'source /home/pi/GloopieGuardian/venv/bin/activate && exec python /home/pi/GloopieGuardian/gpio/waveshare.py'
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
