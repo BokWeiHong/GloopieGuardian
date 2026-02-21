@@ -1,21 +1,42 @@
 import sys
 import os
 import socket
+import fcntl
+import struct
 import subprocess 
 from waveshare_epd import epd2in13_V4
 from PIL import Image, ImageDraw, ImageFont
 import time
 from datetime import datetime
 
-def get_ip_address():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+def get_ip_address(ifname='wlan0'):
     try:
-        s.connect(('8.8.8.8', 80))
-        ip = s.getsockname()[0]
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        ip = socket.inet_ntoa(fcntl.ioctl(
+            s.fileno(),
+            0x8915,
+            struct.pack('256s', ifname[:15].encode('utf-8'))
+        )[20:24])
+        s.close()
+        return ip
+    except Exception:
+        try:
+            s.close()
+        except Exception:
+            pass
+
+    try:
+        s2 = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s2.connect(('8.8.8.8', 80))
+        ip = s2.getsockname()[0]
     except Exception:
         ip = 'No Internet'
     finally:
-        s.close()
+        try:
+            s2.close()
+        except Exception:
+            pass
+
     return ip
 
 def check_usb_status():
@@ -27,12 +48,48 @@ def check_usb_status():
     except Exception:
         return False, False
 
+def get_battery_status():
+    try:
+        base = '/sys/class/power_supply'
+        if os.path.isdir(base):
+            for name in os.listdir(base):
+                path = os.path.join(base, name)
+                cap_file = os.path.join(path, 'capacity')
+                if os.path.isfile(cap_file):
+                    try:
+                        with open(cap_file, 'r') as f:
+                            val = f.read().strip()
+                        if val:
+                            return f"{val}%"
+                    except Exception:
+                        continue
+    except Exception:
+        pass
+
+    # 2) Try upower if installed
+    try:
+        out = subprocess.check_output("upower -e", shell=True).decode('utf-8')
+        for line in out.splitlines():
+            if 'battery' in line.lower():
+                try:
+                    info = subprocess.check_output(f"upower -i {line}", shell=True).decode('utf-8')
+                    for l in info.splitlines():
+                        l = l.strip()
+                        if l.startswith('percentage:'):
+                            return l.split(':', 1)[1].strip()
+                except Exception:
+                    continue
+    except Exception:
+        pass
+
+    # 3) Fallback: not available
+    return 'N/A'
+
 def get_system_state():
-    """ Collect data to see if screen needs updating """
     ip = get_ip_address()
     gps, alfa = check_usb_status()
-    time_str = datetime.now().strftime("%H:%M")
-    return ip, gps, alfa, time_str
+    battery = get_battery_status()
+    return ip, gps, alfa, battery
 
 def show_sleep_image(epd, pause=2):
     try:
@@ -105,7 +162,7 @@ try:
     draw_base = ImageDraw.Draw(base_canvas)
 
     draw_base.text((5, 5), f"IP:", font=font, fill=0)
-    draw_base.text((125, 5), f"Time:", font=font, fill=0)
+    draw_base.text((125, 5), f"Battery:", font=font, fill=0)
     draw_base.text((5, 115), "GPS:", font=font, fill=0)
     draw_base.text((125, 115), "Alfa:", font=font, fill=0)
     draw_base.line((0, 15, epd.height, 15), fill=0, width=1)
@@ -134,13 +191,13 @@ try:
 
         # Trigger update if the system state changed OR if Gloopie's mood just changed
         if (current_state != last_state) or (should_be_bored != is_bored) or (should_be_happy != is_happy):
-            ip, gps_ok, alfa_ok, time_str = current_state
+            ip, gps_ok, alfa_ok, battery_str = current_state
 
             dynamic_canvas = base_canvas.copy()
             draw_dynamic = ImageDraw.Draw(dynamic_canvas)
 
             draw_dynamic.text((25, 5), f"{ip}", font=font, fill=0)
-            draw_dynamic.text((155, 5), f"{time_str}", font=font, fill=0)
+            draw_dynamic.text((175, 5), f"{battery_str}", font=font, fill=0)
 
             # Handle Gloopie's mood (Images and Text)
             if should_be_bored and not should_be_happy:
