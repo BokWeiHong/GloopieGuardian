@@ -1897,3 +1897,9 @@ input[type="checkbox"]:active {
         font-size: 10px !important;
     }
 }
+
+.icon-pixel {
+    width: 24px;
+    height: 24px;
+    image-rendering: pixelated;
+}

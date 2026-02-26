@@ -1,0 +1,75 @@
+import subprocess
+import os
+import shutil
+import datetime
+from django.core.management.base import BaseCommand, CommandError
+
+class Command(BaseCommand):
+    help = 'Enables monitor mode and starts trackerjacker in the background directly from Django.'
+
+    def add_arguments(self, parser):
+        parser.add_argument('interface', type=str, help='The wireless interface to use (e.g., wlan1)')
+
+    def handle(self, *args, **options):
+        wifi_iface = options['interface']
+        mon_iface = f'{wifi_iface}mon' 
+        tracker_path = '/home/pi/GloopieGuardian/venv/bin/trackerjacker'
+        wifi_map_path = '/home/pi/GloopieGuardian/app/tracker/saves/wifi_map.yaml'
+
+        try:
+            parent_dir = os.path.dirname(wifi_map_path)
+            if parent_dir and not os.path.exists(parent_dir):
+                os.makedirs(parent_dir, exist_ok=True)
+                self.stdout.write(self.style.SUCCESS(f'Created directory {parent_dir} for wifi map output.'))
+        except Exception as e:
+            self.stderr.write(self.style.ERROR(f'Failed to create directory for wifi map: {str(e)}'))
+            raise CommandError('Aborting scan setup due to filesystem error.')
+
+        try:
+            airmon_cmd = ['sudo', 'airmon-ng', 'start', wifi_iface]
+            subprocess.run(airmon_cmd, check=True, capture_output=True, text=True)
+            self.stdout.write(self.style.SUCCESS(f'Monitor mode enabled successfully on {wifi_iface}.'))
+
+        except subprocess.CalledProcessError as e:
+            self.stderr.write(self.style.ERROR(f'Failed to start monitor mode: {e.stderr}'))
+            raise CommandError('Aborting scan setup due to airmon-ng failure.')
+
+        try:
+            if os.path.exists(wifi_map_path):
+                timestamp = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+                backup_path = f"{wifi_map_path}.{timestamp}.bak"
+                shutil.copy2(wifi_map_path, backup_path)
+                with open(wifi_map_path, 'w') as f:
+                    f.write('---\n')
+                self.stdout.write(self.style.SUCCESS(f'Backed up {wifi_map_path} -> {backup_path} and cleared file.'))
+            else:
+                with open(wifi_map_path, 'w') as f:
+                    f.write('---\n')
+                self.stdout.write(self.style.SUCCESS(f'Created new {wifi_map_path}.'))
+        except Exception as e:
+            self.stderr.write(self.style.ERROR(f'Failed to backup/clear {wifi_map_path}: {str(e)}'))
+            raise CommandError('Aborting scan setup due to wifi_map.yaml preparation failure.')
+
+        try:
+            tracker_cmd = [
+                'sudo',
+                tracker_path,
+                '--map',
+                '--map-file', wifi_map_path,
+                '-i', mon_iface
+            ]
+
+            process = subprocess.Popen(
+                tracker_cmd, 
+                stdout=subprocess.DEVNULL, 
+                stderr=subprocess.DEVNULL
+            )
+            
+            self.stdout.write(self.style.SUCCESS(
+                f'Success! Trackerjacker is now running in the background (PID: {process.pid}) on {mon_iface}. '
+                f'It is mapping devices to {wifi_map_path}.'
+            ))
+
+        except Exception as e:
+            self.stderr.write(self.style.ERROR(f'An error occurred while starting trackerjacker: {str(e)}'))
+            raise CommandError('Failed to start trackerjacker.')

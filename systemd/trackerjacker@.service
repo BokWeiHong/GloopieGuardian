@@ -1,0 +1,17 @@
+[Unit]
+Description=Trackerjacker Wi-Fi Scanner on %i
+After=network.target
+
+[Service]
+Type=simple
+User=root
+# Adjust this to the folder containing your manage.py
+WorkingDirectory=/home/pi/GloopieGuardian
+
+# Use the Python executable from your virtual environment
+ExecStart=/home/pi/GloopieGuardian/venv/bin/python manage.py start_scan %i
+ExecStop=/home/pi/GloopieGuardian/venv/bin/python manage.py stop_scan %imon
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
